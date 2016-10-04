@@ -12,18 +12,6 @@ def find_amp(v):
         mask = amplitude < -20
         filteramp = amplitude[mask]
         return abs(filteramp)
-'''
-Finds the timing window to calculate dark rate by placing a
-threshold voltage higher than the dark pulses that once
-surpassed marks the end of the window
-'''
-def find_window(x):
-    amps = find_amp(x)
-    threshold = amps > 100
-    famps = amps[theshold]
-    times = famps.time
-    window = np.min(times)
-    return window
 
 def get_times(y, fraction=0.4):
     """
@@ -54,7 +42,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('filenames', nargs='+', help='input files')
-        parser.add_argument('-c', '--chunk', type=int, default=10000)
+    parser.add_argument('-c', '--chunk', type=int, default=10000)
     args = parser.parse_args()
 
     t = []
@@ -69,22 +57,20 @@ if __name__ == '__main__':
 
     window = np.min(t)
 
-    amp = []
     for filename in args.filenames:
         with h5py.File(filename) as f:
             dset = f['c1'][:100000]
             '''
-            filter dataset to only be those
-            that correspond to values of
-            t < window
+            Find number of pulses in the region
+            t < window by filtering data
             '''
-            amp1 = find_amp(dset)
-            amp.extend(amp1)
+            fset = dset[:,:window]
+            a = find_amp(fset)
 
-    np = len(amp)
+    np = len(a)
     ne = len(t)
 
-    dr = np/(window-ne)
+    dr = np/abs(window-ne)
 
     print "Time=",window
     print "Pulses=",np
@@ -93,7 +79,7 @@ if __name__ == '__main__':
 
     for filename in args.filenames:
         with h5py.File(filename) as f:
-            for i in range(1):
+            for i in range(10000):
                 plt.plot(f['c1'][i])
             plt.title('channel 1')
 
