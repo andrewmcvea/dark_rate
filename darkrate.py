@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
     window = np.min(t)
 
+    amp = []
     for filename in args.filenames:
         with h5py.File(filename) as f:
             dset = f['c1'][:100000]
@@ -66,8 +67,9 @@ if __name__ == '__main__':
             '''
             fset = dset[:,:window]
             a = find_amp(fset)
+            amp.append(len(a))
 
-    np = len(a)
+    np = np.sum(amp)
     ne = len(t)
 
     dr = np/abs(window-ne)
@@ -83,6 +85,6 @@ if __name__ == '__main__':
                 plt.plot(f['c1'][i])
             plt.title('channel 1')
 
-    plt.plot((window,window), (250,-2500), 'k-')
+    plt.plot((window,window), (250,-2000), 'k-')
 
 plt.show()
